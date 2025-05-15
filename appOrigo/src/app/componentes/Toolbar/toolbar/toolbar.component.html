@@ -1,0 +1,23 @@
+<div class="card">
+    <p-toolbar>
+        <ng-template #start>
+            
+            <div class="card flex items-center gap-4 flex-wrap">
+                
+                <p-chip label="Apple" icon="pi pi-apple" />
+                <p-chip label="Facebook" icon="pi pi-facebook" />
+                <p-chip label="Google" icon="pi pi-google" />
+                <p-chip label="Microsoft" icon="pi pi-microsoft" [removable]="true" />
+            </div>
+        </ng-template>
+        <ng-template #center>
+            <!-- <p-iconfield iconPosition="left">
+                <p-inputicon styleClass="pi pi-search" />
+                <input type="text" pInputText placeholder="Search" />
+            </p-iconfield> -->
+        </ng-template>
+        <ng-template #end>
+            <p-avatar label="I" styleClass="mr-2" size="xlarge" />
+        </ng-template>
+    </p-toolbar>
+</div>
