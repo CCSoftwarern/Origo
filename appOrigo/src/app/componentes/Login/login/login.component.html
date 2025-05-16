@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,11 +12,13 @@
 
   <style>
     body {
-      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      background-image: url('https://www.turismo.rj.gov.br/wp-content/uploads/2023/07/WhatsApp-Image-2023-07-19-at-14.59.20.jpeg');
+      /* background: linear-gradient(135deg, #4e54c8, #8f94fb); */
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      background-size: cover;
     }
 
     .login-card {
@@ -53,21 +56,44 @@
     }
   </style>
 </head>
+
 <body>
 
-  <div class="login-card">
-    <h3 class="text-center mb-4">Bem-vindo de volta</h3>
-    <form>
-      <div class="mb-3 input-group">
-        <i class="bi bi-envelope form-icon"></i>
-        <input type="email" class="form-control" placeholder="E-mail" required>
+  <div class="login-card shadow p-5" @fadeSlideIn>
+    <h3 class="text-center mb-4">Login</h3>
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <div class="mb-3 d-grid">
+        <p-iftalabel>
+          <p-iconfield>
+            <p-inputicon class="pi pi-user" />
+            <input class="form-control" pInputText formControlName="email" placeholder="E-mail" />
+            <label for="email">Username</label>
+          </p-iconfield>
+        </p-iftalabel>
       </div>
-      <div class="mb-3 input-group">
-        <i class="bi bi-lock form-icon"></i>
-        <input type="password" class="form-control" placeholder="Senha" required>
+      <div class="mb-3 d-grid">
+        <p-iftalabel>
+          <p-iconfield>
+            <p-inputicon class="pi pi-key" />
+            <input class="form-control" pInputText formControlName="senha" placeholder="Senha" type="password" />
+            <label for="senha">Senha</label>
+          </p-iconfield>
+        </p-iftalabel>
       </div>
-      <div class="d-grid mb-3">
-        <button type="submit" class="btn btn-primary">Entrar</button>
+      <div class="mb-3 d-grid">
+        <p-button type="submit" [style]="{'width': '100%'}" [disabled]="!loginForm.valid || isLoading">
+          @if (!isLoading) {
+          <span class="d-flex align-items-center">
+            <span class="pi pi-user"></span> Acessar
+          </span>
+          }
+          @if (isLoading) {
+          <div class="spinner-container">
+            <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s"
+              [style]="{ width: '24px', height: '24px' }" />
+          </div>
+          }
+        </p-button>
       </div>
       <p class="text-center"><a href="#" class="text-decoration-none">Esqueceu a senha?</a></p>
     </form>
@@ -76,4 +102,5 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
