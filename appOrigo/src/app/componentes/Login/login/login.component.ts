@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XanoService } from '../../../services/xano.service';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
@@ -9,6 +9,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PasswordModule } from 'primeng/password';
+import { Message, MessageModule } from 'primeng/message';
 import {
   trigger,
   state,
@@ -21,7 +22,7 @@ import {
   selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, IftaLabelModule, InputTextModule, InputIconModule, IconFieldModule, ButtonModule, ProgressSpinnerModule,
-    PasswordModule
+    PasswordModule, MessageModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -38,6 +39,8 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
   isLoading: boolean = false;
+  visible = signal(false);
+  msnErro: string =''
 
   constructor(private auth: XanoService, private router: Router) {
     this.loginForm = new FormGroup({
@@ -65,16 +68,31 @@ onLogin(): void {
     error: (err) => {
       this.isLoading = false;
       console.error('Erro ao fazer login:', err);
-      
+      if (err.status === 403){
+         this.errorMessage = err.error.message;
+        this.showMessage()
+
+      } 
       // Mensagem de erro mais específica se possível
       if (err.status === 401) {
         this.errorMessage = 'Email ou senha incorretos.';
-      } else {
-        this.errorMessage = 'Ocorreu um erro ao tentar fazer login. Tente novamente.';
+        this.showMessage()
       }
+      // } else {
+      //   this.errorMessage = 'Ocorreu um erro ao tentar fazer login. Tente novamente.';
+      //   this.showMessage()
+      // }
     }
   });
 }
+
+showMessage() {
+        this.visible.set(true);
+
+        setTimeout(() => {
+            this.visible.set(false);
+        }, 3500);
+    }
 
 
 }

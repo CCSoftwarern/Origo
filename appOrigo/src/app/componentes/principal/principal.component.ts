@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { ToolbarComponent } from "../Toolbar/toolbar/toolbar.component";
-import { TabsComponent } from "../tabs/tabs.component";
+import { SidebarComponent } from "../sidebar/sidebar.component";
+
 
 @Component({
   selector: 'app-principal',
-  imports: [ToolbarComponent, TabsComponent],
+  imports: [SidebarComponent],
   templateUrl: './principal.component.html',
   styleUrl: './principal.component.scss'
 })

@@ -1,0 +1,53 @@
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar-container" [class.collapsed]="collapsed">
+    <div class="toggle-button" (click)="toggleSidebar()">
+      <i class="pi" [ngClass]="collapsed ? 'pi-angle-right' : 'pi-angle-left'"></i>
+    </div>
+
+    <div class="logo" *ngIf="!collapsed">
+      <span class="logo-text">M.</span>
+    </div>
+
+    <div class="menu">
+      <a class="menu-item" (click)="selectTab('home')" pRipple>
+        <i class="pi pi-home"></i>
+        <span *ngIf="!collapsed">Home</span>
+      </a>
+      <a class="menu-item" (click)="selectTab('movimentacao')" pRipple>
+        <i class="pi pi-user"></i>
+        <span *ngIf="!collapsed">Movimentação</span>
+      </a>
+      <a class="menu-item" (click)="selectTab('blog')" pRipple>
+        <i class="pi pi-comments"></i>
+        <span *ngIf="!collapsed">Blog</span>
+      </a>
+      <a class="menu-item" (click)="selectTab('services')" pRipple>
+        <i class="pi pi-cog"></i>
+        <span *ngIf="!collapsed">Services</span>
+      </a>
+      <a class="menu-item" (click)="selectTab('contacts')" pRipple>
+        <i class="pi pi-send"></i>
+        <span *ngIf="!collapsed">Contacts</span>
+      </a>
+    </div>
+
+    <div class="footer" *ngIf="!collapsed">
+      <small>Copyright ©2025<br />All rights reserved</small>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO DAS TABS -->
+  <div class="tab-content">
+    <div *ngIf="activeTab === 'home'" @fadeSlideIn>
+      <app-home/>
+    </div>
+    <div *ngIf="activeTab === 'movimentacao'"@fadeSlideIn>
+      <app-tabs/>
+    </div>
+    <div *ngIf="activeTab === 'blog'"@fadeSlideIn>📝 Últimos posts do blog</div>
+    <div *ngIf="activeTab === 'services'"@fadeSlideIn>⚙️ Nossos serviços</div>
+    <div *ngIf="activeTab === 'contacts'"@fadeSlideIn>📨 Fale conosco</div>
+  </div>
+</div>
+

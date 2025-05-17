@@ -84,7 +84,7 @@
         <p-button type="submit" [style]="{'width': '100%'}" [disabled]="!loginForm.valid || isLoading">
           @if (!isLoading) {
           <span class="d-flex align-items-center">
-            <span class="pi pi-user"></span> Acessar
+        Acessar
           </span>
           }
           @if (isLoading) {
@@ -97,6 +97,13 @@
       </div>
       <p class="text-center"><a href="#" class="text-decoration-none">Esqueceu a senha?</a></p>
     </form>
+
+          @if (visible()) {
+        <p-message [life]="3000" severity="error">{{ errorMessage+ msnErro}}</p-message>
+    }
+
+
+
   </div>
 
   <!-- Bootstrap JS -->
