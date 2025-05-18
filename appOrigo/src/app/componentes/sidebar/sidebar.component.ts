@@ -22,7 +22,7 @@ import { HomeComponent } from "../home/home.component";
     trigger('fadeSlideIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(-20px)' }),
-        animate('100ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+        animate('1000ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
       ])
     ])
   ]

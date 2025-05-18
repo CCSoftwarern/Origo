@@ -24,22 +24,22 @@
       </a>
       <a class="menu-item" (click)="selectTab('services')" pRipple>
         <i class="pi pi-cog"></i>
-        <span *ngIf="!collapsed">Services</span>
+        <span *ngIf="!collapsed">Serviços</span>
       </a>
       <a class="menu-item" (click)="selectTab('contacts')" pRipple>
         <i class="pi pi-send"></i>
-        <span *ngIf="!collapsed">Contacts</span>
+        <span *ngIf="!collapsed">Contatos</span>
       </a>
     </div>
 
     <div class="footer" *ngIf="!collapsed">
-      <small>Copyright ©2025<br />All rights reserved</small>
+      <small>CCSoftware - Copyright ©2025<br />All rights reserved</small>
     </div>
   </div>
 
   <!-- CONTEÚDO DAS TABS -->
   <div class="tab-content">
-    <div *ngIf="activeTab === 'home'" @fadeSlideIn>
+    <div *ngIf="activeTab === 'home'"  @fadeSlideIn>
       <app-home/>
     </div>
     <div *ngIf="activeTab === 'movimentacao'"@fadeSlideIn>

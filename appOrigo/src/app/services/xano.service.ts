@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable, tap } from 'rxjs';
+import { Cliente } from '../interfaces/cliente';
 
 
 @Injectable({
@@ -10,6 +11,7 @@ import { Observable, tap } from 'rxjs';
 export class XanoService {
 private tokenKey = 'auth_token';
   private apiUrl = environment.apiUrl;
+  private baseXano = environment.baseAPIXano;
 
   constructor(private http: HttpClient) {}
 
@@ -34,4 +36,16 @@ private tokenKey = 'auth_token';
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
+
+  
+
+  getClientes(): Observable<Cliente[]> {
+  return this.http.get(`${this.baseXano}`+'/tb_clientes').pipe(
+    tap((res: any) => {
+      console.log('Resposta dos clientes:', res);
+      // ou: fazer algum pré-processamento aqui, se necessário
+    })
+  );
+}
+
 }
