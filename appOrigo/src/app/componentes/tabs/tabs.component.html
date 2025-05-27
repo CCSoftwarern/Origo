@@ -1,7 +1,7 @@
 <div class="card" style="margin-top: 10px; margin-left: 10px; margin-right: 10x;">
     <p-tabs value="0">
         <p-tablist>
-            <p-tab value="0">Vendas</p-tab>
+            <p-tab value="0">Vendas por período</p-tab>
             <p-tab value="1">Clientes</p-tab>
             <p-tab value="2">Embarques</p-tab>
         </p-tablist>
@@ -10,15 +10,22 @@
 
                 <p-toolbar>
                     <ng-template #start>
-                        <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" (onClick)="getClientes()" />
-                        <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
+                        <p-datepicker [(ngModel)]="date1" class="mr-2" inputId="buttondisplay" [showIcon]="true"
+                            [showOnFocus]="false" [dateFormat]="'dd/mm/yy'">
+                        </p-datepicker>
+                        <p-datepicker [(ngModel)]="date2" class="mr-2" inputId="icondisplay" [showIcon]="true"
+                            [dateFormat]="'dd/mm/yy'">
+                        </p-datepicker>
+                        <p-button icon="pi pi-search" class="mr-2" text severity="secondary"
+                            (onClick)="getVendasPorDataVenda()" />
+                        <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" (click)="showDialog()" />
                         <p-button icon="pi pi-upload" text severity="secondary" />
                     </ng-template>
                     <ng-template #center>
-                        <p-iconfield iconPosition="left">
+                        <!-- <p-iconfield iconPosition="left">
                             <p-inputicon styleClass="pi pi-search" />
                             <input type="text" pInputText placeholder="Search" />
-                        </p-iconfield>
+                        </p-iconfield> -->
                     </ng-template>
                     <ng-template #end>
                         <p-splitbutton label="Save" [model]="items" />
@@ -26,24 +33,75 @@
                 </p-toolbar>
 
 
-                <p class="m-0">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex
-                    ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
-                    eu fugiat
-                    nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-                    mollit
-                    anim id est laborum.
-                </p>
+                <!-- relatório de Vendas -->
+
+                <div class="card mt-4">
+                    <p-table [value]="vendasDtVenda" stripedRows [tableStyle]="{'min-width': '50rem'}"
+                        [loading]="loadingVendas" [paginator]="true" [rows]="10" [size]="'small'" [lazy]="true"
+                        [size]="'small'">
+                        <ng-template #caption>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl font-bold">Vendas de: {{date1 | date:'dd/MM/yyyy'}} à {{date2 |
+                                    date:'dd/MM/yyyy'}}</span>
+                            </div>
+                        </ng-template>
+                        <ng-template #header>
+                            <tr>
+                                <th>Código</th>
+                                <th>Data Venda</th>
+                                <th>Cliente</th>
+                                <th>Embarque</th>
+                                <th>Retorno</th>
+                                <th>Destino</th>
+                                <th>Operadora</th>
+                                <th>Valor (R$) </th>
+                                <th>Forma pgto</th>
+                                <th>Comissão</th>
+                                <th>Opções</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-vendas>
+                            <tr>
+                                <td>{{vendas.id}}</td>
+                                <td>{{vendas.DT_VENDA | date:'dd/MM/yyyy' }}</td>
+                                <td>{{ vendas._tb_clientes.NM_COMPLETO }}</td>
+                                <td>{{vendas.DT_SAIDA | date:'dd/MM/yyyy'}}</td>
+                                <td>{{vendas.DT_RETORNO | date:'dd/MM/yyyy'}}</td>
+                                <td>{{vendas.DESTINO}}</td>
+                                <td>
+                                    <img [src]="vendas._tb_operadora.URL_LOGO"
+                                        alt="{{ vendas._tb_operadora.NM_OPERADORA }}"
+                                        style="width: 24px; height: 24px; margin-right: 12px; vertical-align: middle;" />
+                                    {{ vendas._tb_operadora.NM_OPERADORA }}
+                                </td>
+                                <td>{{vendas.VR_TOTAL | currency: 'BRL'}}</td>
+                                <td>{{ vendas.NM_FORMA_PGTO }}</td>
+                                <td>{{ vendas.COMISSAO | currency: 'BRL'}}</td>
+                                <td>
+                                    <p-buttongroup>
+                                        <p-toast
+                                            [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+                                        <p-button label="Delete" icon="pi pi-trash" (onClick)="deleteVenda(vendas.id)"
+                                            [severity]="'danger'" />
+                                    </p-buttongroup>
+                                </td>
+                            </tr>
+
+                        </ng-template>
+
+                    </p-table>
+
+                </div>
+
+
             </p-tabpanel>
             <p-tabpanel value="1">
                 <p-toolbar>
                     <ng-template #start>
-                        <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" (onClick)="getClientes()" />
+                        <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" />
                         <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
                         <p-button icon="pi pi-upload" text severity="secondary" />
+                        <p-button icon="pi pi-refresh" text severity="secondary" (onClick)="getClientes()" />
                     </ng-template>
                     <ng-template #center>
                         <p-iconfield iconPosition="left">
@@ -58,8 +116,7 @@
 
                 <div class="card mt-4">
                     <p-table [value]="clientes" stripedRows [tableStyle]="{'min-width': '50rem'}"
-                        [loading]="loadingClientes" [paginator]="true" [rows]="5"
-                        [size]="'small'">
+                        [loading]="loadingClientes" [paginator]="true" [rows]="10" [size]="'small'" [lazy]="true">
                         <ng-template #header>
                             <tr>
                                 <th>Code</th>
@@ -80,7 +137,10 @@
                                 <td>
                                     <p-buttongroup>
                                         <p-button label="Save" icon="pi pi-check" />
-                                        <p-button label="Delete" icon="pi pi-trash" />
+                                        <p-toast
+                                            [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+                                        <p-button label="Delete" icon="pi pi-trash"
+                                            (onClick)="deleteCliente(clientes.id)" />
                                         <p-button label="Cancel" icon="pi pi-times" />
                                     </p-buttongroup>
                                 </td>
@@ -124,3 +184,73 @@
         </p-tabpanels>
     </p-tabs>
 </div>
+<!-- 
+Dialogo para incluir Venda -->
+<div class="card">
+    <p-drawer header="Nova venda" [(visible)]="visible" position="right" styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+        [style]="{width:'600px'}">
+        <div class="flex flex-row gap-2 items-end">
+            <div class="flex-auto">
+                <p-floatlabel variant="in">
+                    <p-datepicker inputId="in_label" showIcon iconDisplay="input" />
+                    <label for="in_label">Venda</label>
+                </p-floatlabel>
+            </div>
+            <div class="flex-auto">
+                <p-floatlabel variant="in">
+                    <p-datepicker inputId="in_label" showIcon iconDisplay="input" />
+                    <label for="in_label">Embarque</label>
+                </p-floatlabel>
+            </div>
+            <div class="flex-auto">
+                <p-floatlabel variant="in">
+                    <p-datepicker inputId="in_label" showIcon iconDisplay="input" />
+                    <label for="in_label">Retorno</label>
+                </p-floatlabel>
+            </div>
+        </div>
+        <div class="flex flex-row gap-2 items-end">
+        </div>
+        <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+            <p-select inputId="over_label" [options]="tipoProdutos" optionLabel="Descricao" styleClass="w-full"
+                [showClear]="true" />
+            <label for="over_label">Tipo de produto</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+            <p-select inputId="over_label" [options]="operadoras" optionLabel="NM_OPERADORA" styleClass="w-full"
+                [showClear]="true" />
+            <label for="over_label">Operadora</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+            <p-select inputId="over_label" [options]="formaPagamento" optionLabel="NM_FORMA" styleClass="w-full"
+                [showClear]="true" />
+            <label for="over_label">Forma de pagamento</label>
+        </p-floatlabel>
+
+        <div class="mb-3 d-flex gap-2 align-items-center">
+            <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+                <p-autocomplete [(ngModel)]="value" [suggestions]="clientes"
+                    (completeMethod)="onGetSearchCliente($event.query)" [dropdown]="true" [style]="{width:'400px'}"
+                    showClear="true" field="NM_COMPLETO" />
+                <label for="over_label">Cliente</label>
+            </p-floatlabel>
+        </div>
+
+
+                    <div class="mt-2 d-flex gap-2">
+                        <p-floatlabel variant="in">
+                            <p-inputnumber inputId="in_label" mode="currency" currency="BRL" locale="pt-BR"
+                                formControlName="vr_calculado"  />
+                            <label for="vr_calculado">Valor</label>
+                        </p-floatlabel>
+                                                <p-floatlabel variant="in">
+                            <p-inputnumber inputId="in_label" mode="currency" currency="BRL" locale="pt-BR"
+                                formControlName="vr_calculado"  />
+                            <label for="vr_calculado">Valor</label>
+                        </p-floatlabel>
+                    </div>
+
+
+    </p-drawer>
