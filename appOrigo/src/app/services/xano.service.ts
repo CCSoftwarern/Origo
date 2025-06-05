@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable, tap } from 'rxjs';
 import { Cliente } from '../interfaces/cliente';
-import { Venda } from '../interfaces/venda';
+import { ConsultaVenda } from '../interfaces/consulta-venda';
 import { TipoProduto } from '../interfaces/tipo-produto';
 import { Operadora } from '../interfaces/operadora';
 import { FormaPagamento } from '../interfaces/forma-pagamento';
+import { firstValueFrom } from 'rxjs';
+import { Venda } from '../interfaces/venda';
 
 
 @Injectable({
@@ -43,6 +45,10 @@ private tokenKey = 'auth_token';
 
   
 
+
+
+//////////////// Operações com Clientes /////////////////////////////////
+
   getClientes(): Observable<Cliente[]> {
   return this.http.get(`${this.baseXano}`+'/tb_clientes').pipe(
     tap((res: any) => {
@@ -62,9 +68,22 @@ deleteCliente(id: number): Observable<any> {
   );
 }
 
+//Pesquisa Clientes
+//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_clientes_cliente_pornome?texto=clau
+getPesquisaCliente(termo:string): Observable<Cliente[]> {
+  return this.http.get(`${this.baseXano}`+'/tb_clientes_cliente_pornome?texto='+termo).pipe(
+    tap((res: any) => {
+      console.log('Resposta da pesquisa cliente:', res);
+      // ou: fazer algum pré-processamento aqui, se necessário
+    })
+  );
+}
+
+////////////// Operações com vendas //////////////////////////////////////
+
 //Buscar vendas por data de embarque
 
-  getVendaPorDataEmbarque(dtInicial:string, dtfinal:string): Observable<Venda[]> {
+  getVendaPorDataEmbarque(dtInicial:string, dtfinal:string): Observable<ConsultaVenda[]> {
   return this.http.get(`${this.baseXano}`+'/tb_vendas_by_date?dt_inicial='+dtInicial+'&dt_final='+dtfinal).pipe(
     tap((res: any) => {
       console.log('Resposta das vendas:', res);
@@ -77,37 +96,13 @@ deleteCliente(id: number): Observable<any> {
 
 //https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_vendas_por_data_venda
 
-getVendaPorDataVenda(dtInicial:string, dtfinal:string): Observable<Venda[]> {
+getVendaPorDataVenda(dtInicial:string, dtfinal:string): Observable<ConsultaVenda[]> {
   return this.http.get(`${this.baseXano}`+'/tb_vendas_por_data_venda?dtVendaInicial='+dtInicial+'&dtVendaFinal='+dtfinal).pipe(
     tap((res: any) => {
       console.log('Resposta das vendas:', res);
       // ou: fazer algum pré-processamento aqui, se necessário
     })
   );
-}
-
-//Get Produtos
-//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tp_produto
-
-getProdutos():  Observable<TipoProduto[]>{
-  return this.http.get(`${this.baseXano}`+'/tp_produto').pipe(
-    tap((res: any) =>{
-      console.log('Resposta das vendas:', res);
-    })
-  );
-
-}
-
-//Carregar operadoras():
-//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_operadora
-
-getOperadoras():  Observable<Operadora[]>{
-  return this.http.get(`${this.baseXano}`+'tb_operadora').pipe(
-    tap((res: any) =>{
-      console.log('Resposta das operadoras:', res);
-    })
-  );
-
 }
 
 //excluir uma venda
@@ -121,16 +116,30 @@ deleteVenda(id: number): Observable<any> {
   );
 }
 
-//Pesquisa Clientes
-//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_clientes_cliente_pornome?texto=clau
-getPesquisaCliente(termo:string): Observable<Cliente[]> {
-  return this.http.get(`${this.baseXano}`+'/tb_clientes_cliente_pornome?texto='+termo).pipe(
-    tap((res: any) => {
-      console.log('Resposta da pesquisa cliente:', res);
-      // ou: fazer algum pré-processamento aqui, se necessário
-    })
-  );
-}
+//Gravar Venda
+
+//   https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_vendas
+async postVenda(venda: Venda): Promise<void> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      // Caso use autenticação:
+      // 'Authorization': `Bearer ${this.}`,
+    });
+    try {
+      const response = await firstValueFrom(
+        this.http.post(this.baseXano+'tb_vendas', venda, { headers })
+      );
+      console.log('Venda adicionada:', response);
+    } catch (error: any) {
+      console.error('Erro ao adicionar venda:', error);
+      throw error;
+    }
+  }
+
+
+
+
+////////////////Operações com Forma de pagamento ///////////////////////////
 
 //Get forma de pagamento
 //https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_formapgto
@@ -142,5 +151,34 @@ getFormaPgto():  Observable<FormaPagamento[]>{
   );
 
 }
+
+////////////////Operações com produtos ///////////////////////////////////
+//Get Produtos
+//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tp_produto
+
+getProdutos():  Observable<TipoProduto[]>{
+  return this.http.get(`${this.baseXano}`+'/tp_produto').pipe(
+    tap((res: any) =>{
+      console.log('Resposta das vendas:', res);
+    })
+  );
+
+}
+
+
+////////////////Operações com Operadora ///////////////////////////
+
+//Carregar operadoras():
+//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_operadora
+
+getOperadoras():  Observable<Operadora[]>{
+  return this.http.get(`${this.baseXano}`+'tb_operadora').pipe(
+    tap((res: any) =>{
+      console.log('Resposta das operadoras:', res);
+    })
+  );
+
+}
+
 
 }

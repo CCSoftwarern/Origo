@@ -1,4 +1,6 @@
-<div class="card" style="margin-top: 10px; margin-left: 10px; margin-right: 10x;">
+<p-toast />
+<div class="card" style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
     <p-tabs value="0">
         <p-tablist>
             <p-tab value="0">Vendas por período</p-tab>
@@ -17,7 +19,7 @@
                             [dateFormat]="'dd/mm/yy'">
                         </p-datepicker>
                         <p-button icon="pi pi-search" class="mr-2" text severity="secondary"
-                            (onClick)="getVendasPorDataVenda()" />
+                            (onClick)="onGetVendasPorDataVenda()" />
                         <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" (click)="showDialog()" />
                         <p-button icon="pi pi-upload" text severity="secondary" />
                     </ng-template>
@@ -36,19 +38,43 @@
                 <!-- relatório de Vendas -->
 
                 <div class="card mt-4">
-                    <p-table [value]="vendasDtVenda" stripedRows [tableStyle]="{'min-width': '50rem'}"
-                        [loading]="loadingVendas" [paginator]="true" [rows]="10" [size]="'small'" [lazy]="true"
-                        [size]="'small'">
+                    <p-table
+                     [value]="vendasDtVenda" 
+                     stripedRows [tableStyle]="{'min-width': '50rem'}"
+                        [loading]="loadingVendas" 
+                        [paginator]="true" 
+                        [rows]="10"
+                        [lazy]="true"
+                        [size]="'small'"
+                        selectionMode="single"
+                        [(selection)]="vendaSelecionada"
+                        (onRowSelect)="onRowSelect($event)"
+                        dataKey="id"
+                        [rows]="100" 
+                        [rowsPerPageOptions]="[100, 250, 500]" 
+                        
+                        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+                        [tableStyle]="{ 'min-width': '75rem' }"
+                    
+                        [rowHover]="true"
+                    
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [showCurrentPageReport]="true"
+    
+                        >
                         <ng-template #caption>
                             <div class="flex items-center justify-between">
-                                <span class="text-xl font-bold">Vendas de: {{date1 | date:'dd/MM/yyyy'}} à {{date2 |
-                                    date:'dd/MM/yyyy'}}</span>
+                                <span class="text-xl font-bold">
+                                    Vendas de: {{date1 | date:'dd/MM/yyyy'}} à {{date2 | date:'dd/MM/yyyy'}}
+                                </span>
+
                             </div>
                         </ng-template>
                         <ng-template #header>
                             <tr>
                                 <th>Código</th>
                                 <th>Data Venda</th>
+                                <th>Reserva</th>
                                 <th>Cliente</th>
                                 <th>Embarque</th>
                                 <th>Retorno</th>
@@ -57,14 +83,15 @@
                                 <th>Valor (R$) </th>
                                 <th>Forma pgto</th>
                                 <th>Comissão</th>
-                                <th>Opções</th>
+                                <th></th>
                             </tr>
                         </ng-template>
                         <ng-template #body let-vendas>
                             <tr>
                                 <td>{{vendas.id}}</td>
                                 <td>{{vendas.DT_VENDA | date:'dd/MM/yyyy' }}</td>
-                                <td>{{ vendas._tb_clientes.NM_COMPLETO }}</td>
+                                <td>{{vendas.NR_RESERVA }}</td>
+                                <td>{{vendas._tb_clientes.NM_COMPLETO }}</td>
                                 <td>{{vendas.DT_SAIDA | date:'dd/MM/yyyy'}}</td>
                                 <td>{{vendas.DT_RETORNO | date:'dd/MM/yyyy'}}</td>
                                 <td>{{vendas.DESTINO}}</td>
@@ -75,14 +102,15 @@
                                     {{ vendas._tb_operadora.NM_OPERADORA }}
                                 </td>
                                 <td>{{vendas.VR_TOTAL | currency: 'BRL'}}</td>
-                                <td>{{ vendas.NM_FORMA_PGTO }}</td>
+                                <td>{{ vendas._tb_formapgto.NM_FORMA }}</td>
                                 <td>{{ vendas.COMISSAO | currency: 'BRL'}}</td>
                                 <td>
+
                                     <p-buttongroup>
-                                        <p-toast
-                                            [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
-                                        <p-button label="Delete" icon="pi pi-trash" (onClick)="deleteVenda(vendas.id)"
+                                        <p-button label="Delete" icon="pi pi-trash" (onClick)="onDeleteVenda(vendas.id)"
                                             [severity]="'danger'" />
+                                        <p-button label="Editar" icon="pi pi-pencil" 
+                                            [severity]="'warn'" (click)="editVenda(vendas)" />
                                     </p-buttongroup>
                                 </td>
                             </tr>
@@ -101,7 +129,7 @@
                         <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" />
                         <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
                         <p-button icon="pi pi-upload" text severity="secondary" />
-                        <p-button icon="pi pi-refresh" text severity="secondary" (onClick)="getClientes()" />
+                        <p-button icon="pi pi-refresh" text severity="secondary" (onClick)="onGetClientes()" />
                     </ng-template>
                     <ng-template #center>
                         <p-iconfield iconPosition="left">
@@ -129,7 +157,7 @@
                         </ng-template>
                         <ng-template #body let-clientes>
                             <tr>
-                                <td>{{clientes.id}}</td>
+                                <td>{{ clientes.id }}</td>
                                 <td>{{clientes.NM_COMPLETO}}</td>
                                 <td>{{clientes.CPF}}</td>
                                 <td>{{clientes.FONE}}</td>
@@ -137,10 +165,10 @@
                                 <td>
                                     <p-buttongroup>
                                         <p-button label="Save" icon="pi pi-check" />
-                                        <p-toast
-                                            [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" />
+
+
                                         <p-button label="Delete" icon="pi pi-trash"
-                                            (onClick)="deleteCliente(clientes.id)" />
+                                            (onClick)="onDeleteCliente(clientes.id)" />
                                         <p-button label="Cancel" icon="pi pi-times" />
                                     </p-buttongroup>
                                 </td>
@@ -152,7 +180,8 @@
             <p-tabpanel value="2">
                 <p-toolbar>
                     <ng-template #start>
-                        <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" (onClick)="getClientes()" />
+                        <p-button icon="pi pi-plus" class="mr-2" text severity="secondary"
+                            (onClick)="onGetClientes()" />
                         <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
                         <p-button icon="pi pi-upload" text severity="secondary" />
                     </ng-template>
@@ -183,74 +212,105 @@
             </p-tabpanel>
         </p-tabpanels>
     </p-tabs>
-</div>
-<!-- 
+
+    <!-- 
 Dialogo para incluir Venda -->
-<div class="card">
-    <p-drawer header="Nova venda" [(visible)]="visible" position="right" styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+    <p-drawer [header]="nmSide" [(visible)]="visible" position="right" styleClass="!w-full md:!w-80 lg:!w-[30rem]"
         [style]="{width:'600px'}">
-        <div class="flex flex-row gap-2 items-end">
-            <div class="flex-auto">
-                <p-floatlabel variant="in">
-                    <p-datepicker inputId="in_label" showIcon iconDisplay="input" />
-                    <label for="in_label">Venda</label>
-                </p-floatlabel>
-            </div>
-            <div class="flex-auto">
-                <p-floatlabel variant="in">
-                    <p-datepicker inputId="in_label" showIcon iconDisplay="input" />
-                    <label for="in_label">Embarque</label>
-                </p-floatlabel>
-            </div>
-            <div class="flex-auto">
-                <p-floatlabel variant="in">
-                    <p-datepicker inputId="in_label" showIcon iconDisplay="input" />
-                    <label for="in_label">Retorno</label>
-                </p-floatlabel>
-            </div>
-        </div>
-        <div class="flex flex-row gap-2 items-end">
-        </div>
-        <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
-            <p-select inputId="over_label" [options]="tipoProdutos" optionLabel="Descricao" styleClass="w-full"
-                [showClear]="true" />
-            <label for="over_label">Tipo de produto</label>
-        </p-floatlabel>
+        <form [formGroup]="vendaForm">
+            <div class="flex flex-row gap-2 items-end">
+                <div class="flex-auto">
 
-        <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
-            <p-select inputId="over_label" [options]="operadoras" optionLabel="NM_OPERADORA" styleClass="w-full"
-                [showClear]="true" />
-            <label for="over_label">Operadora</label>
-        </p-floatlabel>
-
-        <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
-            <p-select inputId="over_label" [options]="formaPagamento" optionLabel="NM_FORMA" styleClass="w-full"
-                [showClear]="true" />
-            <label for="over_label">Forma de pagamento</label>
-        </p-floatlabel>
-
-        <div class="mb-3 d-flex gap-2 align-items-center">
-            <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
-                <p-autocomplete [(ngModel)]="value" [suggestions]="clientes"
-                    (completeMethod)="onGetSearchCliente($event.query)" [dropdown]="true" [style]="{width:'400px'}"
-                    showClear="true" field="NM_COMPLETO" />
-                <label for="over_label">Cliente</label>
+                    <p-floatlabel variant="in">
+                        <p-datepicker inputId="in_label" showIcon iconDisplay="input" formControlName="DT_VENDA"
+                            [dateFormat]="'dd/mm/yy'" />
+                        <label for="DT_VENDA">Venda</label>
+                    </p-floatlabel>
+                </div>
+                <div class="flex-auto">
+                    <p-floatlabel variant="in">
+                        <p-datepicker inputId="DT_SAIDA" showIcon iconDisplay="input" formControlName="DT_SAIDA"
+                            [dateFormat]="'dd/mm/yy'" />
+                        <label for="DT_SAIDA">Embarque</label>
+                    </p-floatlabel>
+                </div>
+                <div class="flex-auto">
+                    <p-floatlabel variant="in">
+                        <p-datepicker inputId="DT_RETORNO" showIcon iconDisplay="input" formControlName="DT_RETORNO"
+                            [dateFormat]="'dd/mm/yy'" />
+                        <label for="DT_RETORNO">Retorno</label>
+                    </p-floatlabel>
+                </div>
+            </div>
+            <div class="flex flex-row gap-2 items-end">
+            </div>
+            <p-floatlabel class="w-full md:w-56 mt-2" variant="in">
+                <input pInputText id="NR_RESERVA" formControlName="NR_RESERVA" autocomplete="off" />
+                <label for="NR_RESERVA">Reserva</label>
             </p-floatlabel>
-        </div>
+            <p-floatlabel class="w-full md:w-56 mt-2" variant="in">
+                <input pInputText id="DESTINO" formControlName="DESTINO" autocomplete="off" style="width: 50%;" />
+                <label for="DESTINO">Destino(*)</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+                <p-select inputId="ID_TIPO_SERVICO" [options]="tipoProdutos" optionLabel="Descricao" optionValue="id"
+                    styleClass="w-full" [showClear]="true" formControlName="ID_TIPO_SERVICO" />
+                <label for="ID_TIPO_SERVICO">Tipo de produto</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+                <p-select inputId="ID_OPERADORA" [options]="operadoras" optionLabel="NM_OPERADORA" optionValue="id"
+                    styleClass="w-full" [showClear]="true" formControlName="ID_OPERADORA" />
+                <label for="ID_OPERADORA">Operadora</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+                <p-select inputId="over_label" [options]="formaPagamento" optionLabel="NM_FORMA" optionValue="id"
+                    styleClass="w-full" [showClear]="true" formControlName="ID_FORMAPGTO" />
+                <label for="over_label">Forma de pagamento</label>
+            </p-floatlabel>
+
+            <div class="flex flex-row gap-2 items-end">
+                <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
+                    <p-autocomplete [(ngModel)]="clienteSelecionado" [suggestions]="clientes"
+                        (completeMethod)="onGetSearchCliente($event.query)" [dropdown]="true" [style]="{width:'400px'}"
+                        showClear="true" field="NM_COMPLETO" formControlName="ID_CLIENTE" />
+                    <label for="over_label">Cliente</label>
+
+                </p-floatlabel>
 
 
-                    <div class="mt-2 d-flex gap-2">
-                        <p-floatlabel variant="in">
-                            <p-inputnumber inputId="in_label" mode="currency" currency="BRL" locale="pt-BR"
-                                formControlName="vr_calculado"  />
-                            <label for="vr_calculado">Valor</label>
-                        </p-floatlabel>
-                                                <p-floatlabel variant="in">
-                            <p-inputnumber inputId="in_label" mode="currency" currency="BRL" locale="pt-BR"
-                                formControlName="vr_calculado"  />
-                            <label for="vr_calculado">Valor</label>
-                        </p-floatlabel>
-                    </div>
+            </div>
+            <div class="mt-2 d-flex gap-2">
+                <p-floatlabel variant="in">
+                    <p-inputnumber inputId="VR_TOTAL" mode="currency" currency="BRL" locale="pt-BR"
+                        formControlName="VR_TOTAL" />
+                    <label for="VR_TOTAL">Valor total</label>
+                </p-floatlabel>
+                <p-floatlabel variant="in">
+                    <p-inputnumber inputId="VR_TAXAS" mode="currency" currency="BRL" locale="pt-BR"
+                        formControlName="VR_TAXAS" />
+                    <label for="VR_TAXAS">Taxas</label>
+                </p-floatlabel>
+            </div>
+            <div class="mt-2 d-flex gap-2">
+                <p-floatlabel variant="in">
+                    <p-inputnumber inputId="VR_PARCELADO" mode="currency" currency="BRL" locale="pt-BR"
+                        formControlName="VR_PARCELADO" />
+                    <label for="VR_PARCELADO">Parcelado</label>
+                </p-floatlabel>
+                <p-floatlabel variant="in">
+                    <p-inputnumber inputId="VR_PARCELADO" mode="currency" currency="BRL" locale="pt-BR"
+                        formControlName="VR_ENTRADA" />
+                    <label for="VR_PARCELADO">Entrada</label>
+                </p-floatlabel>
+            </div>
+            <div class="mt-2">
+                <p-button (onClick)="onPostVenda()" label="Incluir" [disabled]="!vendaForm.valid" icon="pi pi-check"
+                    size="large" severity="success" />
+            </div>
 
+        </form>
 
     </p-drawer>
