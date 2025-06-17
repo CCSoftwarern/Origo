@@ -79,6 +79,28 @@ getPesquisaCliente(termo:string): Observable<Cliente[]> {
   );
 }
 
+//https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_clientes
+
+//Cadastrar cliente
+
+async postCliente(cliente: Cliente): Promise<void> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      // Caso use autenticação:
+      // 'Authorization': `Bearer ${this.}`,
+    });
+    try {
+      const response = await firstValueFrom(
+        this.http.post(this.baseXano+'tb_clientes', cliente, { headers })
+      );
+      console.log('Cliente adicionado:', response);
+    } catch (error: any) {
+      console.error('Erro ao adicionar cliente:', error);
+      throw error;
+    }
+  }
+
+
 ////////////// Operações com vendas //////////////////////////////////////
 
 //Buscar vendas por data de embarque
@@ -132,6 +154,27 @@ async postVenda(venda: Venda): Promise<void> {
       console.log('Venda adicionada:', response);
     } catch (error: any) {
       console.error('Erro ao adicionar venda:', error);
+      throw error;
+    }
+  }
+
+  // Editar venda
+  // https://x8ki-letl-twmt.n7.xano.io/api:VtKxuYWy/tb_vendas/{tb_vendas_id}
+
+async pathVenda(venda: Venda, idVenda: number): Promise<void> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      // Caso use autenticação:
+      // 'Authorization': `Bearer ${this.}`,
+    });
+    try {
+      const response = await firstValueFrom(
+        this.http.patch(this.baseXano+`tb_vendas/${idVenda}`, venda, { headers })
+  
+      );
+      console.log('Venda atualizada:', response);
+    } catch (error: any) {
+      console.error('Erro ao atualizar a venda:', error);
       throw error;
     }
   }

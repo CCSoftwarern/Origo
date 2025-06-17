@@ -23,4 +23,7 @@ export interface Venda {
   VR_TARIFA: number;
   VR_ENTRADA: number;
   NR_RESERVA: string;
+  PORCENTAGEM_COMISSAO: number;
+  VR_DESCONTO: number;
+  VR_ABATIMENTO: number;
 }

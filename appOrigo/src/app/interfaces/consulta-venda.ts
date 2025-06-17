@@ -25,6 +25,9 @@ export interface ConsultaVenda {
   NR_RESERVA: string,
   ID_OPERADORA: number,
   ID_FORMAPGTO: number,
+  PORCENTAGEM_COMISSAO: number,
+  VR_DESCONTO: number,
+  VR_ABATIMENTO: number
   _tb_operadora: {
     id: number,
     created_at: Date,

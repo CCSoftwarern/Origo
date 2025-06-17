@@ -29,7 +29,8 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ConsultaVenda } from '../../interfaces/consulta-venda';
 import { Venda } from '../../interfaces/venda';
-
+import { calculoComissao } from '../../funcoes/funcoes';
+import { InputMaskModule } from 'primeng/inputmask';
 
 
 
@@ -38,7 +39,8 @@ import { Venda } from '../../interfaces/venda';
     standalone: true,
     imports: [Toolbar, ButtonModule, SplitButton, InputTextModule, IconField, InputIcon, TabsModule, CommonModule, TableModule,
         ButtonGroupModule, ToastModule, FluidModule, DatePickerModule, FormsModule, DatePipe, CurrencyPipe, FloatLabelModule
-        , DrawerModule, SelectModule, AutoCompleteModule, ReactiveFormsModule, InputGroupAddonModule, InputGroupModule, InputNumberModule],
+        , DrawerModule, SelectModule, AutoCompleteModule, ReactiveFormsModule, InputGroupAddonModule, InputGroupModule, InputNumberModule,
+    InputMaskModule],
     templateUrl: './tabs.component.html',
     styleUrl: './tabs.component.scss',
     providers: [MessageService]
@@ -63,18 +65,26 @@ export class TabsComponent implements OnInit {
     clienteSelecionado!: Cliente;
     formaPgtoSelecionado!: FormaPagamento;
     vendaForm: FormGroup;
+    clienteForm: FormGroup;
     venda: Venda[] = [];
     vendaSelecionada!: Venda;
     edtVenda!: ConsultaVenda;
     nmSide: string = 'Nova venda';
+    emEdicao: boolean = false;
+    visibleCadCliente: boolean = false;
+    idVenda: number = 0;
 
     showDialog() {
 
         this.vendaForm.reset();
         this.nmSide = 'Nova venda'
         this.visible = true;
+        this.emEdicao = false;
 
+    }
 
+    showCadClienteDialog() {
+        this.visibleCadCliente = true;
     }
 
     ngOnInit() {
@@ -95,6 +105,7 @@ export class TabsComponent implements OnInit {
 
     constructor(private xanoapi: XanoService, private messageService: MessageService) {
         this.vendaForm = new FormGroup({
+
             ID_TIPO_SERVICO: new FormControl('', Validators.required),
             DESTINO: new FormControl('', Validators.required),
             N_PASSAGEIROS: new FormControl(''),
@@ -119,6 +130,23 @@ export class TabsComponent implements OnInit {
             VR_TARIFA: new FormControl(''),
             VR_ENTRADA: new FormControl(''),
             NR_RESERVA: new FormControl('', Validators.required),
+            PORCENTAGEM_COMISSAO: new FormControl('', Validators.required),
+            VR_DESCONTO: new FormControl('', Validators.required),
+            VR_ABATIMENTO: new FormControl('', Validators.required),
+        })
+        this.clienteForm = new FormGroup({
+
+            id: new FormControl(''),
+            created_at: new FormControl(''),
+            NM_COMPLETO: new FormControl('', Validators.required),
+            DT_NASCIMENTO: new FormControl(''),
+            CPF: new FormControl(''),
+            RG: new FormControl('', Validators.required),
+            ENDERECO: new FormControl(''),
+            EMAIL: new FormControl('', Validators.required),
+            FONE: new FormControl('', Validators.required),
+            NACIONALIDADE: new FormControl('')
+
         })
     }
 
@@ -136,9 +164,10 @@ export class TabsComponent implements OnInit {
 
     // If you have a edtVenda interface, import it at the top. Otherwise, use 'any' or define the interface.
     editVenda(edtVenda: any) {
-
+        this.emEdicao = true;
         this.edtVenda = { ...edtVenda };
         this.nmSide = `Edição venda ${this.edtVenda.id}`
+        this.idVenda = this.edtVenda.id;
         this.vendaForm.patchValue({
             ID_TIPO_SERVICO: this.edtVenda.ID_TIPO_SERVICO,
             DESTINO: this.edtVenda.DESTINO,
@@ -163,7 +192,10 @@ export class TabsComponent implements OnInit {
             VR_PARCELADO: this.edtVenda.VR_PARCELADO,
             VR_TARIFA: this.edtVenda.VR_TARIFA,
             VR_ENTRADA: this.edtVenda.VR_ENTRADA,
-            NR_RESERVA: this.edtVenda.NR_RESERVA
+            NR_RESERVA: this.edtVenda.NR_RESERVA,
+            PORCENTAGEM_COMISSAO: this.edtVenda.PORCENTAGEM_COMISSAO,
+            VR_DESCONTO: this.edtVenda.VR_DESCONTO,
+            VR_ABATIMENTO: this.edtVenda.VR_ABATIMENTO,
             // Adicione outros campos que queira preencher
         });
         this.visible = true;
@@ -194,7 +226,6 @@ export class TabsComponent implements OnInit {
             await firstValueFrom(this.xanoapi.deleteCliente(id));
             this.showToast(`Cliente com ID ${id} deletado com sucesso.`, "success", "Sucesso");
             console.log(`Cliente com ID ${id} deletado com sucesso.`);
-
             await sleep(1000);
             this.onGetClientes();
         } catch (err) {
@@ -275,13 +306,11 @@ export class TabsComponent implements OnInit {
                         this.showToast("Erro ao consultar vendas", "error", err);
                     }
                     this.loadingVendas = false;
-
                 }
             });
 
         } else {
             this.showToast("A data incial não pode ser maior que a data final ", "warn", "Atenção");
-
         }
 
     }
@@ -301,7 +330,6 @@ export class TabsComponent implements OnInit {
             VR_TOTAL: this.vendaForm.value.VR_TOTAL,
             NM_FORMA_PGTO: this.vendaForm.value.NM_FORMA_PGTO,
             PARCELAMENTO: this.vendaForm.value.PARCELAMENTO,
-            COMISSAO: this.vendaForm.value.COMISSAO,
             STATUS: this.vendaForm.value.STATUS,
             NM_CLIENTE: this.vendaForm.value.NM_CLIENTE,
             DT_VENDA: this.vendaForm.value.DT_VENDA,
@@ -313,7 +341,12 @@ export class TabsComponent implements OnInit {
             VR_PARCELADO: this.vendaForm.value.VR_PARCELADO,
             VR_TARIFA: this.vendaForm.value.VR_TARIFA,
             VR_ENTRADA: this.vendaForm.value.VR_ENTRADA,
-            NR_RESERVA: this.vendaForm.value.NR_RESERVA
+            NR_RESERVA: this.vendaForm.value.NR_RESERVA,
+            PORCENTAGEM_COMISSAO: this.vendaForm.value.PORCENTAGEM_COMISSAO,
+            VR_DESCONTO: this.vendaForm.value.VR_DESCONTO,
+            VR_ABATIMENTO:this.vendaForm.value.VR_ABATIMENTO,
+            COMISSAO: calculoComissao(this.vendaForm.value.VR_TOTAL,this.vendaForm.value.VR_TAXAS, this.vendaForm.value.VR_DESCONTO, this.vendaForm.value.VR_ABATIMENTO, this.vendaForm.value.PORCENTAGEM_COMISSAO),
+
         };
 
         try {
@@ -326,6 +359,56 @@ export class TabsComponent implements OnInit {
         } catch (error) {
             console.error('Erro ao salvar entrega:', error);
             console.log('Forma de pagamento selecionada:', this.formaPgtoSelecionado);
+        }
+    }
+
+
+    // Editar venda
+
+     async onPathVenda(idVenda: number) {
+        
+        const pathVenda: Venda = {
+            ID_TIPO_SERVICO: this.vendaForm.value.ID_TIPO_SERVICO,
+            DESTINO: this.vendaForm.value.DESTINO,
+            N_PASSAGEIROS: this.vendaForm.value.N_PASSAGEIROS,
+            NM_PASSAGEIRO: this.vendaForm.value.NM_PASSAGEIRO,
+            DT_SAIDA: this.vendaForm.value.DT_SAIDA,
+            DT_RETORNO: this.vendaForm.value.DT_RETORNO,
+            NM_OPERADORA: this.vendaForm.value.NM_OPERADORA,
+            DESC_ROTEIRO: this.vendaForm.value.DESC_ROTEIRO,
+            VR_TOTAL: this.vendaForm.value.VR_TOTAL,
+            NM_FORMA_PGTO: this.vendaForm.value.NM_FORMA_PGTO,
+            PARCELAMENTO: this.vendaForm.value.PARCELAMENTO,
+            STATUS: this.vendaForm.value.STATUS,
+            NM_CLIENTE: this.vendaForm.value.NM_CLIENTE,
+            DT_VENDA: this.vendaForm.value.DT_VENDA,
+            ID_CLIENTE: this.clienteSelecionado.id,
+            ID_OPERADORA: this.vendaForm.value.ID_OPERADORA,
+            ID_FORMAPGTO: this.vendaForm.value.ID_FORMAPGTO,
+            VR_TAXAS: this.vendaForm.value.VR_TAXAS,
+            VR_SALDO: this.vendaForm.value.VR_SALDO,
+            VR_PARCELADO: this.vendaForm.value.VR_PARCELADO,
+            VR_TARIFA: this.vendaForm.value.VR_TARIFA,
+            VR_ENTRADA: this.vendaForm.value.VR_ENTRADA,
+            NR_RESERVA: this.vendaForm.value.NR_RESERVA,
+            PORCENTAGEM_COMISSAO: this.vendaForm.value.PORCENTAGEM_COMISSAO,
+            VR_DESCONTO: this.vendaForm.value.VR_DESCONTO,
+            VR_ABATIMENTO:this.vendaForm.value.VR_ABATIMENTO,
+            COMISSAO: calculoComissao(this.vendaForm.value.VR_TOTAL,this.vendaForm.value.VR_TAXAS, this.vendaForm.value.VR_DESCONTO, this.vendaForm.value.VR_ABATIMENTO, this.vendaForm.value.PORCENTAGEM_COMISSAO),
+            
+
+        };
+
+        try {
+            await this.xanoapi.pathVenda(pathVenda, idVenda);
+            this.vendaForm.reset();
+            this.visible = false;
+            this.onGetVendasPorDataVenda();
+
+            console.log('Venda atualizada com sucesso!');
+        } catch (error) {
+            console.error('Erro ao atualizar a venda:', error);
+           // console.log('Forma de pagamento selecionada:', this.formaPgtoSelecionado);
         }
     }
 
@@ -362,8 +445,6 @@ export class TabsComponent implements OnInit {
                 this.loadingVendas = false;
             }
         });
-
-
 
     }
 
@@ -406,10 +487,33 @@ export class TabsComponent implements OnInit {
 
     }
 
+    async onPostCliente() {
+        const novocliente: Cliente = {
+            id: this.clienteForm.value.id,
+            created_at: this.clienteForm.value.created_at,
+            NM_COMPLETO: this.clienteForm.value.NM_COMPLETO,
+            DT_NASCIMENTO: this.clienteForm.value.DT_NASCIMENTO,
+            CPF: this.clienteForm.value.CPF,
+            RG: this.clienteForm.value.RG,
+            ENDERECO: this.clienteForm.value.ENDERECO,
+            EMAIL: this.clienteForm.value.EMAIL,
+            FONE: this.clienteForm.value.FONE,
+            NACIONALIDADE: this.clienteForm.value.NACIONALIDADE
 
+        };
 
+        try {
+            await this.xanoapi.postCliente(novocliente);
+            this.clienteForm.reset();
+            this.visibleCadCliente = false;
+
+            console.log('Cliente cadastrado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao salvar cliente:', error);
+
+        }
+    }
 }
-
 
 
 // Função utilitária sleep

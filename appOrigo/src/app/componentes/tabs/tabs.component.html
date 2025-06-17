@@ -38,30 +38,14 @@
                 <!-- relatório de Vendas -->
 
                 <div class="card mt-4">
-                    <p-table
-                     [value]="vendasDtVenda" 
-                     stripedRows [tableStyle]="{'min-width': '50rem'}"
-                        [loading]="loadingVendas" 
-                        [paginator]="true" 
-                        [rows]="10"
-                        [lazy]="true"
-                        [size]="'small'"
-                        selectionMode="single"
-                        [(selection)]="vendaSelecionada"
-                        (onRowSelect)="onRowSelect($event)"
-                        dataKey="id"
-                        [rows]="100" 
-                        [rowsPerPageOptions]="[100, 250, 500]" 
-                        
+                    <p-table [value]="vendasDtVenda" stripedRows [tableStyle]="{'min-width': '50rem'}"
+                        [loading]="loadingVendas" [paginator]="true" [rows]="10" [lazy]="true" [size]="'small'"
+                        selectionMode="single" [(selection)]="vendaSelecionada" (onRowSelect)="onRowSelect($event)"
+                        dataKey="id" [rows]="100" [rowsPerPageOptions]="[100, 250, 500]"
                         [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-                        [tableStyle]="{ 'min-width': '75rem' }"
-                    
-                        [rowHover]="true"
-                    
+                        [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                        [showCurrentPageReport]="true"
-    
-                        >
+                        [showCurrentPageReport]="true">
                         <ng-template #caption>
                             <div class="flex items-center justify-between">
                                 <span class="text-xl font-bold">
@@ -109,8 +93,8 @@
                                     <p-buttongroup>
                                         <p-button label="Delete" icon="pi pi-trash" (onClick)="onDeleteVenda(vendas.id)"
                                             [severity]="'danger'" />
-                                        <p-button label="Editar" icon="pi pi-pencil" 
-                                            [severity]="'warn'" (click)="editVenda(vendas)" />
+                                        <p-button label="Editar" icon="pi pi-pencil" [severity]="'warn'"
+                                            (click)="editVenda(vendas)" />
                                     </p-buttongroup>
                                 </td>
                             </tr>
@@ -220,7 +204,6 @@ Dialogo para incluir Venda -->
         <form [formGroup]="vendaForm">
             <div class="flex flex-row gap-2 items-end">
                 <div class="flex-auto">
-
                     <p-floatlabel variant="in">
                         <p-datepicker inputId="in_label" showIcon iconDisplay="input" formControlName="DT_VENDA"
                             [dateFormat]="'dd/mm/yy'" />
@@ -242,16 +225,26 @@ Dialogo para incluir Venda -->
                     </p-floatlabel>
                 </div>
             </div>
+
+            <div class="mt-2 d-flex gap-2">
+                <div class="w-80">
+
+                    <p-floatlabel class="w-full md:w-56 mt-2" variant="in">
+                        <input pInputText id="NR_RESERVA" formControlName="NR_RESERVA" autocomplete="off" />
+                        <label for="NR_RESERVA">Reserva</label>
+                    </p-floatlabel>
+
+                </div>
+                <div class="w-80">
+                    <p-floatlabel class="w-full md:w-56 mt-2" variant="in">
+                        <input pInputText id="DESTINO" formControlName="DESTINO" autocomplete="off" />
+                        <label for="DESTINO">Destino(*)</label>
+                    </p-floatlabel>
+                </div>
+
+            </div>
             <div class="flex flex-row gap-2 items-end">
             </div>
-            <p-floatlabel class="w-full md:w-56 mt-2" variant="in">
-                <input pInputText id="NR_RESERVA" formControlName="NR_RESERVA" autocomplete="off" />
-                <label for="NR_RESERVA">Reserva</label>
-            </p-floatlabel>
-            <p-floatlabel class="w-full md:w-56 mt-2" variant="in">
-                <input pInputText id="DESTINO" formControlName="DESTINO" autocomplete="off" style="width: 50%;" />
-                <label for="DESTINO">Destino(*)</label>
-            </p-floatlabel>
 
             <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
                 <p-select inputId="ID_TIPO_SERVICO" [options]="tipoProdutos" optionLabel="Descricao" optionValue="id"
@@ -271,46 +264,166 @@ Dialogo para incluir Venda -->
                 <label for="over_label">Forma de pagamento</label>
             </p-floatlabel>
 
-            <div class="flex flex-row gap-2 items-end">
-                <p-floatlabel class="w-full md:w-56 mt-2" [variant]="'in'">
-                    <p-autocomplete [(ngModel)]="clienteSelecionado" [suggestions]="clientes"
-                        (completeMethod)="onGetSearchCliente($event.query)" [dropdown]="true" [style]="{width:'400px'}"
-                        showClear="true" field="NM_COMPLETO" formControlName="ID_CLIENTE" />
-                    <label for="over_label">Cliente</label>
+            <div class="mt-2 d-flex gap-2">
+                <div>
+                    <p-floatlabel class="w-full md:w-56" [variant]="'in'">
+                        <p-autocomplete [(ngModel)]="clienteSelecionado" [suggestions]="clientes"
+                            (completeMethod)="onGetSearchCliente($event.query)" [dropdown]="true"
+                            [style]="{width:'400px'}" showClear="true" field="NM_COMPLETO"
+                            formControlName="ID_CLIENTE" />
+                        <label for="over_label">Cliente</label>
+                    </p-floatlabel>
 
-                </p-floatlabel>
+                </div>
+
+                <div class="w-full">
+                    <p-button [size]="'large'" [severity]="'info'" [icon]="'pi pi-user-plus'"
+                        (onClick)="showCadClienteDialog()" />
+                </div>
 
 
             </div>
             <div class="mt-2 d-flex gap-2">
-                <p-floatlabel variant="in">
-                    <p-inputnumber inputId="VR_TOTAL" mode="currency" currency="BRL" locale="pt-BR"
-                        formControlName="VR_TOTAL" />
-                    <label for="VR_TOTAL">Valor total</label>
-                </p-floatlabel>
-                <p-floatlabel variant="in">
-                    <p-inputnumber inputId="VR_TAXAS" mode="currency" currency="BRL" locale="pt-BR"
-                        formControlName="VR_TAXAS" />
-                    <label for="VR_TAXAS">Taxas</label>
-                </p-floatlabel>
+                <div class="w-40">
+                    <p-floatlabel variant="in">
+                        <p-inputnumber inputId="VR_TOTAL" mode="currency" currency="BRL" locale="pt-BR"
+                            formControlName="VR_TOTAL" />
+                        <label for="VR_TOTAL">Valor total</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="w-40">
+                    <p-floatlabel variant="in">
+                        <p-inputnumber inputId="VR_TAXAS" mode="currency" currency="BRL" locale="pt-BR"
+                            formControlName="VR_TAXAS" />
+                        <label for="VR_TAXAS">Taxas</label>
+                    </p-floatlabel>
+                </div>
+
+
             </div>
             <div class="mt-2 d-flex gap-2">
+
+                <div class="w-40">
+                    <p-floatlabel variant="in">
+                        <p-inputnumber inputId="VR_DESCONTO" mode="currency" currency="BRL" locale="pt-BR"
+                            formControlName="VR_DESCONTO" />
+                        <label for="VR_DESCONTO">Desconto</label>
+                    </p-floatlabel>
+                </div>
+
                 <p-floatlabel variant="in">
-                    <p-inputnumber inputId="VR_PARCELADO" mode="currency" currency="BRL" locale="pt-BR"
-                        formControlName="VR_PARCELADO" />
-                    <label for="VR_PARCELADO">Parcelado</label>
+                    <p-inputnumber inputId="VR_ABATIMENTO" mode="currency" currency="BRL" locale="pt-BR"
+                        formControlName="VR_ABATIMENTO" />
+                    <label for="VR_ABATIMENTO">Abatimento</label>
                 </p-floatlabel>
+
+            </div>
+
+
+            <div class="mt-2 d-flex gap-2">
+
+                <div class="w-40">
+                    <p-floatlabel variant="in">
+                        <p-inputnumber inputId="VR_PARCELADO" mode="currency" currency="BRL" locale="pt-BR"
+                            formControlName="VR_PARCELADO" />
+                        <label for="VR_PARCELADO">Parcelado</label>
+                    </p-floatlabel>
+                </div>
+
                 <p-floatlabel variant="in">
                     <p-inputnumber inputId="VR_PARCELADO" mode="currency" currency="BRL" locale="pt-BR"
                         formControlName="VR_ENTRADA" />
                     <label for="VR_PARCELADO">Entrada</label>
                 </p-floatlabel>
+
+            </div>
+
+            <div class="mt-2 d-flex gap-2">
+
+                <p-floatlabel variant="in">
+                    <p-inputnumber inputId="PORCENTAGEM_COMISSAO" formControlName="PORCENTAGEM_COMISSAO" />
+                    <label for="PORCENTAGEM_COMISSAO">% Comissão</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="in">
+                    <p-inputnumber inputId="COMISSAO" mode="currency" currency="BRL" locale="pt-BR"
+                        formControlName="COMISSAO" />
+                    <label for="COMISSAO">Valor da comissão</label>
+                </p-floatlabel>
+
             </div>
             <div class="mt-2">
+                @if (emEdicao == false) {
                 <p-button (onClick)="onPostVenda()" label="Incluir" [disabled]="!vendaForm.valid" icon="pi pi-check"
-                    size="large" severity="success" />
+                    size="large" severity="success" [rounded]="true" />
+
+                }@else
+
+                {
+
+                <p-button (onClick)="onPathVenda(idVenda)" label="Salvar" [disabled]="!vendaForm.valid"
+                    icon="pi pi-check" size="large" severity="warn" [rounded]="true" />
+
+                }
+
             </div>
 
         </form>
 
     </p-drawer>
+
+    <!-- Dialogo de cadastro de clientes -->
+
+    <p-drawer [header]="'Cliente'" [(visible)]="visibleCadCliente" position="right"
+        styleClass="!w-full md:!w-80 lg:!w-[30rem]" [style]="{width:'600px'}">
+        <form [formGroup]="clienteForm">
+
+            <p-floatlabel variant="in">
+                <input pInputText id="NM_COMPLETO" autocomplete="off" style="width: 100%;"
+                    formControlName="NM_COMPLETO" />
+                <label for="NM_COMPLETO">Nome completo</label>
+            </p-floatlabel>
+            <div class="mb-3 d-flex gap-2">
+                <p-floatlabel variant="in" class="mt-2">
+                    <p-inputmask id="FONE" mask="(99)99999-9999" formControlName="FONE" [style]="{width:'150px'}" />
+                    <label for="FONE">Celular</label>
+                </p-floatlabel>
+                <p-floatlabel variant="in" class="mt-2">
+                    <p-inputmask id="CPF" mask="999.999.999-99" formControlName="CPF" [style]="{width:'200px'}" />
+                    <label for="CPF">CPF</label>
+                </p-floatlabel>
+            </div>
+
+
+            <p-floatlabel variant="in" class="mt-2">
+                <input pInputText id="EMAIL" autocomplete="off" [style]="{width:'100%'}" formControlName="EMAIL"
+                    maxlength="255" />
+                <label for="EMAIL">E-mail</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="in" class="mt-2">
+                <input pInputText id="ENDERECO" autocomplete="off" [style]="{width:'100%'}" formControlName="ENDERECO"
+                    maxlength="255" />
+                <label for="ENDERECO">Endereço</label>
+            </p-floatlabel>
+            <div class="mt-2">
+                <p-button (onClick)="onPostCliente()" label="Salvar" [disabled]="!clienteForm.valid" icon="pi pi-check"
+                    size="large" severity="warn" [rounded]="false" />
+
+            </div>
+
+        </form>
+
+    </p-drawer>
+
+    <!-- id: number;
+  created_at: number;
+  NM_COMPLETO: string;
+  DT_NASCIMENTO: string;
+  CPF: string;
+  RG: string;
+  ENDERECO: string;
+  EMAIL: String;
+  FONE: string;
+  NACIONALIDADE: string; -->
