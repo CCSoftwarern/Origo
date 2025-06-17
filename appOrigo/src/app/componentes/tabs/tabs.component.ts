@@ -140,11 +140,11 @@ export class TabsComponent implements OnInit {
             created_at: new FormControl(''),
             NM_COMPLETO: new FormControl('', Validators.required),
             DT_NASCIMENTO: new FormControl(''),
-            CPF: new FormControl(''),
-            RG: new FormControl('', Validators.required),
+            CPF: new FormControl('', Validators.required),
+            RG: new FormControl(''),
             ENDERECO: new FormControl(''),
-            EMAIL: new FormControl('', Validators.required),
-            FONE: new FormControl('', Validators.required),
+            EMAIL: new FormControl('', Validators.email),
+            FONE: new FormControl(''),
             NACIONALIDADE: new FormControl('')
 
         })
@@ -355,10 +355,12 @@ export class TabsComponent implements OnInit {
             this.visible = false;
             this.onGetVendasPorDataVenda();
 
-            console.log('Entrega salva com sucesso!');
+            console.log('Venda salva com sucesso!');
+            this.showToast("Venda salva com sucesso", "success", "Ok");
         } catch (error) {
             console.error('Erro ao salvar entrega:', error);
             console.log('Forma de pagamento selecionada:', this.formaPgtoSelecionado);
+            
         }
     }
 
